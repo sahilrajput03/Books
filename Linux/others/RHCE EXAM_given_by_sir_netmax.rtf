@@ -1,0 +1,2071 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang16393{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset1 Cambria Math;}{\f2\fnil Calibri;}{\f3\fnil\fcharset1 Segoe UI Symbol;}}
+{\colortbl ;\red0\green0\blue255;}
+{\*\generator Riched20 10.0.14393}{\*\mmathPr\mmathFont1\mwrapIndent1440 }\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang9 O Additional information -----> Click this to know following information\par
+\par
+Domain Name:\par
+System1: system1.district10.example.com use as Server\par
+System2: system2.district10.example.com use as Client\par
+IP Address:\par
+System1:172.24.10.110/24\par
+System1:172.24.10.120/24\par
+Name Server: 172.24.10.250\par
+Gateway:172.24.10.254\par
+Root password : zaldebro\par
+Your Domain: district10.example.com\par
+Your Subnet : 172.24.10.0/255.255.255.0\par
+Yum path   {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/content/rhel7.0/x86_64/dvd }}{\fldrslt{http://station.district0.example.com/content/rhel7.0/x86_64/dvd\ul0\cf0}}}}\f0\fs22\par
+\par
+Note:(for this subnetmask CIDR value is /24)\par
+\par
+\par
+\par
+\par
+# ssh -X  root@system1.district10.example.com\par
+                          (or)\par
+#ssh -X root@172.24.10.110\par
+Password:zaldebro\par
+[root@system1 ~]#iptables -F\par
+[root@system1 ~] # systemctl mask iptables.service\par
+[root@system1 ~] # systemctl mask ip6tables.service\par
+[root@system1 ~] # systemctl mask ebtables.service\par
+\par
+\par
+\par
+# ssh -X  root@system2.district10.example.com\par
+                          (or)\par
+#ssh -X root@172.24.10.120\par
+Password:zaldebro\par
+\par
+[root@system1 ~]#iptables -F\par
+[root@system2 ~] # systemctl mask iptables.service\par
+[root@system2 ~] # systemctl mask ip6tables.service\par
+[root@system2 ~] # systemctl mask ebtables.service\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+1. Enable Selinux on enforcing method\par
+\par
+Do This on Both Server and Client\par
+server side: (System1)\par
+[root@system1 ~]# getenforce\par
+[root@system1 ~]# vim /etc/sysconfig/selinux\par
+Set SELINUX = enforcing\par
+:wq\par
+[root@system1 ~]#setenforce 1\par
+[root@system1 ~]#init 6\par
+[root@system1 ~]# getenforce\par
+Enforcing\par
+\par
+Client Side: (System2)\par
+[root@system2 ~]# getenforce\par
+[root@system2 ~]# vim /etc/sysconfig/selinux\par
+Set SELINUX = enforcing\par
+:wq\par
+[root@system2 ~]#setenforce 1\par
+[root@system2 ~]#init 6\par
+[root@system2 ~]# getenforce\par
+Enforcing\par
+[root@ system2 ~]#\par
+\par
+\par
+\par
+\par
+Yum Client Configuration\par
+\par
+2.Configure repository. Create a Repository for your virtual machines. The URL is\par
+\par
+{{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/content/rhel7.0/x86_64/dvd }}{\fldrslt{http://station.district0.example.com/content/rhel7.0/x86_64/dvd\ul0\cf0}}}}\f0\fs22\par
+\par
+Do This on Both Server and Client\par
+System1 :\par
+[root@ system1 ~]# cd /etc/yum.repos.d/\par
+\par
+[root@ system1 ~]# vim system1.repo\par
+  \par
+[system1]\par
+name=server\par
+baseurl=http://station.district0.example.com/content/rhel7.0/x86_64/dvd\par
+enabled=1\par
+gpgcheck=0\par
+\par
+[root@ system1 ~]# yum clean all\par
+\par
+[root@ system1 ~]# yum repolist all\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+System 2:\par
+\par
+[root@ system2 ~]# cd /etc/yum.repos.d/\par
+\par
+[root@ system2 ~]# vim system1.repo\par
+  \par
+[system2]\par
+name=client\par
+baseurl=http://station.district0.example.com/content/rhel7.0/x86_64/dvd\par
+enabled=1\par
+gpgcheck=0\par
+\par
+[root@ system2 ~]# yum clean all\par
+\par
+[root@ system2 ~]# yum repolist all\par
+\par
+\par
+\par
+\par
+3. SSH Configuration.\par
+-Clients within my133ilt.org should NOT have access to ssh on your systems\par
+-Clients with domain district10.example.com should be able to access the systems\par
+\par
+           in case you my133ilt.org has  (172.25.70.0/255.255.0.0)\par
+    \par
+Ans:\par
+\par
+Do This on Both Server and Client\par
+\par
+\par
+[root@ system1 ~]# vim /etc/hosts.allow\par
+sshd: *.district10.example.com        (Note    sshd:space *.given domain nam)\par
+:wq\par
+(or)\par
+\par
+[root@ system1 ~]# vim /etc/hosts.allow\par
+sshd: 172.25.10.0/255.255.255.0          (Note    sshd:space *.given domain address)\par
+\par
+\par
+\par
+[root@ system1 ~]# vim /etc/hosts.deny\par
+sshd: *.my133ilt.org                         (Note     sshd:space *.given domain name)\par
+:wq\par
+\par
+\par
+\par
+[root@ system1 ~]# vim /etc/hosts.deny\par
+sshd: 172.25.70.0/255.255.255.0                (Note    sshd:space *.given domain address)                  \par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+4. Port forwarding.\par
+ -Configure system1 to forward traffic incoming on port 80/tcp from source network\par
+172.24.X.0/255.255.255.0  to port on 5243/tcp\par
+\par
+Ans:\par
+\par
+Server side\par
+\par
+client:(to verify in your local environment ask me if not working)\par
+server5.example.com:5243\par
+\par
+[root@ system1 ~]# firewall-cmd - -permanent - -add-rich-rule 'rule family=ipv4 source address=172.24.10.0/24 forward-port port=5243 protocol=tcp to-port=80'\par
+\par
+[root@ system1 ~]# firewall-cmd  - -reload\par
+\par
+[root@ system1 ~]# firewall-cmd  - -list-rich-rules\par
+\par
+\par
+    ( or)\par
+\par
+Configure serverX to forward traffic incoming on port 80/tcp from source network\par
+172.25.X.0/255.255.255.0 to port on 5243/tcp.\par
+\par
+[root@ system1 ~]# firewall-config\par
+\par
+Configuration : Permanent\par
+\par
+Select \f1\u8594?\f0  Rich Rule Tab\par
+\par
+click \f1\u8594?\f0 Add\par
+\par
+Family : ipv4\par
+Check Elements \f1\u8594?\f0  forward-port    [      Click this  tab        ]\par
+                        |\par
+                        |\par
+                              V\par
+                                                       protocol          : tcp\par
+                Port / Port Range:  5243\par
+                       \par
+                                             Destination\par
+                check Local forwarding\par
+                   Port / Port Range:  80\par
+                                                        \par
+                                                               click [ok]\par
+Source :172.24.10.0/24\par
+click   [OK]\par
+click option \f1\u8594?\f0 reload Firewalld   (in terminal put # firewall-cmd  - -list-rich-rules  )\par
+\par
+\par
+\par
+\par
+\par
+5. User Environment.\par
+\par
+-Create a command called qstat on both system1 and system2. It should able to execute the following\par
+command(ps eo pid,tid,class,rtprio,ni,pri,psr,pcpu,stat,wchan:14,comm)\par
+The command should be executable by all users..\par
+\par
+Ans:\par
+\par
+Server side :\par
+[root@ system1 ~]# vim /bin/qstat\par
+\par
+    ps eo pid,tid,class,rtprio,ni,pri,psr,pcpu,stat,wchan:14,comm\par
+\par
+:wq\par
+\par
+[root@ system1 ~]#chmod a+x /bin/qstat\par
+\par
+[root@ system1 ~]#qstat\par
+\par
+PID      TID       CLS RTPRIO     NI    PRI    PSR    %CPU        STAT     WCHAN               COMMAND\par
+1271     1271      TS       -        0     19      0      0.0             Ss+     poll_schedule_    Xorg\par
+1502     1502      TS       -       0     19     0      0.0              Ss+     n_tty_read             agetty\par
+1632     1632      TS       -     0     19      0     0.0              Ss       wait                   bash\par
+29595    29595    TS       -           0    19      0      0.0              S+       wait                   bash\par
+29596    29596    TS       -          0    19      0      0.0               R+      -                      ps\par
+\par
+Client side :\par
+[root@ system1 ~]# vim /bin/qstat\par
+\par
+     ps eo pid,tid,class,rtprio,ni,pri,psr,pcpu,stat,wchan:14,comm\par
+\par
+:wq\par
+\par
+[root@ system1 ~]#chmod a+x /bin/qstat\par
+\par
+[root@ system1 ~]#qstat\par
+\par
+PID      TID       CLS RTPRIO     NI    PRI    PSR    %CPU        STAT     WCHAN               COMMAND\par
+1271     1271      TS       -        0     19      0      0.0             Ss+     poll_schedule_    Xorg\par
+1502     1502      TS       -       0     19     0      0.0              Ss+     n_tty_read             agetty\par
+1632     1632      TS       -     0     19      0     0.0              Ss       wait                   bash\par
+29595    29595    TS       -           0    19      0      0.0              S+       wait                   bash\par
+29596    29596    TS       -          0    19      0      0.0               R+      -                      ps\par
+\par
+______________________________________________________________________________________\par
+\par
+\par
+\par
+\par
+\par
+\par
+6.IPV 6 Connection\par
+-Configure eth0 with a static ipv6 addresses as follows.\par
+-configure a static IPV6 address in system1  as fddb:fe2a:ab1e::c0a8:64/64.\par
+-configure a static IPV6 address in system2 as fddb:fe2a:ab1e::c0a8:02/64.\par
+-Both machines are able to communicate within the network fddb:fe2a:able/64\par
+-The changes should be permanent even after the reboot\par
+Ans :\par
+Server Side:\par
+\par
+[root@ system1 ~]#nmcli connection show\par
+\par
+NAME         UUID                                  TYPE            DEVICE\par
+System eth0  5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03  802-3-ethernet  eth0   \par
+\par
+[root@ system1 ~]#nmcli device status\par
+\par
+DEVICE  TYPE      STATE         CONNECTION  \par
+eth0      ethernet   connected      System eth0\par
+eno1    ethernet   disconnected   --          \par
+eno2    ethernet   disconnected   --          \par
+lo        loopback  unmanaged      --\par
+\par
+[root@ system1 ~]# nmcli connection modify "System eth0" ipv6.addresses fddb:fe2a:ab1e::c0a8:64/64  ipv6.method manual\par
+\par
+[root@ system1 ~]# nmcli connection up "System eth0"\par
+\par
+Client Side:\par
+\par
+[root@ system2 ~]# nmcli connection show\par
+\par
+NAME         UUID                                  TYPE            DEVICE\par
+System eth0  5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03  802-3-ethernet  eth0   \par
+\par
+[root@ system2 ~]# nmcli device status\par
+\par
+DEVICE  TYPE      STATE         CONNECTION  \par
+eth0      ethernet   connected      System eth0\par
+eno1    ethernet   disconnected   --          \par
+eno2    ethernet   disconnected   --          \par
+lo        loopback  unmanaged      --\par
+\par
+[root@ system2 ~]# nmcli connection modify "System eth0" ipv6.addresses fddb:fe2a:ab1e::c0a8:02/64\par
+ipv6.method manual\par
+\par
+[root@ system2 ~]# nmcli connection up "System eth0"\par
+\par
+Client Side:-\par
+\par
+[root@ system2 ~]#  ping6 fddb:fe2a:ab1e::c0a8:64\par
+\par
+Server Side:-\par
+[root@ system1 ~]# ping6 fddb:fe2a:ab1e::c0a8:02  (do this on both side if packet transmited & received same means                correct other wise wrong  )\par
+______________________________________________________________________________________\par
+\par
+7.  Link aggregation Configure your system1 and system2, which watches for link changes and selects\par
+an active port for data transfers. System1 should have the address as 172.24.10.10/255.255.255.0.\par
+System2 should have the address as 172.24.10.20/255.255.255.0\par
+\par
+[root@ system1 ~]# nmcli connection show\par
+\par
+NAME         UUID                                  TYPE            DEVICE\par
+System eth0  5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03  802-3-ethernet  eth0   \par
+\par
+[root@ system1 ~]# nmcli device status\par
+\par
+DEVICE  TYPE      STATE         CONNECTION  \par
+eth0      ethernet   connected      System eth0\par
+eno1    ethernet   disconnected   --          \par
+eno2    ethernet   disconnected   --          \par
+lo        loopback  unmanaged      \f2\endash\par
+\par
+System1 Side:\par
+[root@ system1 ~]# nmcli connection add type team ifname team config '\{"runner": \{"name": "activebackup"\}\}'\par
+[root@ system1 ~]#  nmcli connection modify team-team ipv4.addresses 172.24.10.10/24 ipv4.method manual\par
+[root@ system1 ~]# nmcli connection show\par
+\par
+NAME         UUID                                  TYPE            DEVICE\par
+System eth0  5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03  802-3-ethernet  eth0   \par
+team-team    e10a27c3-bd4a-431a-a284-50375a3c4717  team            team   \par
+\par
+[root@ system1 ~]#  nmcli connection add type team-slave ifname eno1 master team\par
+[root@ system1 ~]# nmcli connection add type team-slave ifname eno2 master team\par
+[root@ system1 ~]# nmcli connection up team-team\par
+[root@ system1 ~]# teamdctl team state\par
+setup:\par
+ runner: activebackup\par
+ports:\par
+ eno1\par
+   link watches:\par
+     link summary: up\par
+     instance[link_watch_0]:\par
+       name: ethtool\par
+       link: up\par
+ eno2\par
+   link watches:\par
+     link summary: up\par
+     instance[link_watch_0]:\par
+       name: ethtool\par
+       link: up\par
+runner:\par
+ active port: eno2\par
+\par
+Client Side :\par
+[root@ system2 ~]# nmcli connection show\par
+\par
+NAME         UUID                                  TYPE            DEVICE\par
+System eth0  5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03  802-3-ethernet  eth0   \par
+\par
+[root@ system2 ~]#  nmcli device status\par
+\par
+DEVICE  TYPE      STATE         CONNECTION  \par
+eth0      ethernet   connected      System eth0\par
+eno1    ethernet   disconnected   --          \par
+eno2    ethernet   disconnected   --          \par
+lo        loopback  unmanaged      \endash\par
+\par
+System2 Side:\par
+[root@ system2 ~]# nmcli connection add type team ifname team config '\{"runner": \{"name": "activebackup"\}\}'\par
+[root@ system2 ~]#  nmcli connection modify team-team ipv4.addresses 172.24.10.20/24 ipv4.method manual\par
+[root@ system2 ~]#  nmcli connection show\par
+\par
+NAME         UUID                                  TYPE            DEVICE\par
+System eth0  5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03  802-3-ethernet  eth0   \par
+team-team    e10a27c3-bd4a-431a-a284-50375a3c4717  team            team   \par
+\par
+[root@ system2 ~]# nmcli connection add type team-slave ifname eno1 master team\par
+[root@ system2 ~]#  nmcli connection add type team-slave ifname eno2 master team\par
+[root@ system2 ~]# nmcli connection up team-team\par
+[root@ system2 ~]# teamdctl team state\par
+setup:\par
+ runner: activebackup\par
+ports:\par
+ eno1\par
+   link watches:\par
+     link summary: up\par
+     instance[link_watch_0]:\par
+       name: ethtool\par
+       link: up\par
+ eno2\par
+   link watches:\par
+     link summary: up\par
+     instance[link_watch_0]:\par
+       name: ethtool\par
+       link: up\par
+runner:\par
+ active port: eno2\par
+\par
+server side:-\par
+#ping -I team-team 172.25.10.20\par
+____________________________________________________________________________________\par
+8. SMTP Configuration. Configure the SMTP mail service on system1 and system2 which relay the mail\par
+only from local system through station.network0.example.com, all outgoing mail have their sender\par
+domain as district10.example.com. Verify the mail server is working by sending mail to a local user clarke.\par
+Check the mail on both system1 and system2 with the below URL\par
+\par
+\par
+{{\field{\*\fldinst{HYPERLINK http://rhcert.district0.example.com }}{\fldrslt{http://rhcert.district0.example.com\ul0\cf0}}}}\f2\fs22\par
+\par
+\par
+System1\par
+\par
+\par
+[root@ system1 ~]#  yum install postfix* -y\par
+\par
+[root@ system1 ~]# firewall-cmd \endash permanent \endash add-service=smtp\par
+\par
+[root@ system1 ~]# firewall-cmd \endash reload\par
+\par
+[root@ system1 ~]# systemctl restart postfix.service\par
+\par
+[root@ system1 ~]# systemctl enable postfix.service\par
+\par
+[root@ system1 ~]# vim /etc/postfix/main.cf\par
+\par
+Line No 99  : (Remove # ) myorigin = district10.example.com\par
+\par
+Line No 116  : inet_interfaces = loopback-only\par
+\par
+Line No 164 : mydestination =\par
+\par
+Line No 317 : (Remove # ) relayhost = [station.network0.example.com]\par
+\par
+[root@ system1 ~]# systemctl restart postfix.service\par
+\par
+[root@ system1 ~]# mail -s \ldblquote HAI\rdblquote  clarke\par
+\par
+This is test mail\par
+.\par
+EOT\par
+\par
+To Verify\par
+\par
+Click the above Links\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+System2\par
+\par
+\par
+[root@ system2 ~]#  yum install postfix* -y\par
+\par
+[root@ system2 ~]# firewall-cmd \endash permanent \endash add-service=smtp\par
+\par
+[root@ system2 ~]# firewall-cmd \endash reload\par
+\par
+[root@ system2 ~]# systemctl restart postfix.service\par
+\par
+[root@ system2 ~]# systemctl enable postfix.service\par
+\par
+[root@ system2 ~]# vim /etc/postfix/main.cf\par
+\par
+Line No 99  : (Remove # ) myorigin = district10.example.com\par
+\par
+Line No 116  : inet_interfaces = loopback-only\par
+\par
+Line No 164 : mydestination = \ldblquote\rdblquote\par
+\par
+Line No 317 : (Remove # ) relayhost = [station.network0.example.com]\par
+\par
+[root@ system2 ~]# systemctl restart postfix.service\par
+\par
+[root@ system2 ~]# mail -s \ldblquote HAI\rdblquote  clarke\par
+\par
+This is test mail\par
+.\par
+EOT\par
+\par
+To Verify\par
+\par
+Click the above Links\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+9. NFS server\par
+\par
+  -  Configure system1 with the following requirements.\par
+  -   Share the /nfsshare directory within the district10.example.com domain clients only, share must not be writable.\par
+\par
+\par
+Ans:\par
+\par
+\par
+[root@ system1 ~]# yum install nfs* -y\par
+\par
+[root@ system1 ~]# systemctl start nfs-server\par
+\par
+[root@ system1 ~]# systemctl enable nfs-server\par
+\par
+[root@ system1 ~]# mkdir /nfsshare\par
+(Note : Here no need to give nfsnobody permission for read only share)\par
+\par
+[root@ system1 ~]# vim  /etc/exports\par
+\par
+/nfsshare       *.district10.example.com(ro,sync)\par
+\par
+:wq\par
+\par
+[root@ system1 ~]# exportfs -a\par
+[root@ system1 ~]# exportfs -r\par
+[root@ system1 ~]# exportfs\par
+\par
+[root@ system1 ~]# systemctl restart nfs-server\par
+\par
+[root@ system1 ~]# firewall-cmd --permanent --add-service=nfs\par
+\par
+[root@ system1 ~]# firewall-cmd --permanent --add-service=rpc-bind\par
+t\par
+[root@ system1 ~]# firewall-cmd --permanent \endash add-service=mountd\par
+\par
+[root@ system1 ~]# firewall-cmd \endash reload\par
+\par
+[root@ system1 ~]# showmount -e 172.24.10.110\par
+Export list for server2:\par
+/nfsshare    *. district10.example.com\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+Nfs mount\par
+\par
+-Mount /nfsshare directory on system2 under /public directory persistently at system boot time.\par
+Ans:\par
+\par
+[root@ system2 ~]# mkdir /public\par
+\par
+\par
+[root@ system2 ~]#  yum install nfs-utils* -y\par
+\par
+[root@ system2 ~]# vim /etc/fstab\par
+\par
+172.24.10.110:/nfsshare   /public nfs     defaults        0       0\par
+\par
+:wq\par
+\par
+[root@ system2 ~]# mount -a\par
+[root@ system2 ~]#  df -h\par
+\par
+Filesystem                    Size         Used     Avail    Use%     Mounted on\par
+/dev/vda1                        10G         3.1G      7.0G     31%     /\par
+devtmpfs                  906M      0          906M      0%     /dev\par
+tmpfs                        921M     140K     921M      1%     /dev/shm\par
+tmpfs                         921M     17M      904M      2%     /run\par
+tmpfs                         921M     0          921M      0%     /sys/fs/cgroup\par
+172.24.10.110:/nfsshare   10G      3.6G      6.5G      36%     /public\par
+\par
+[root@ system2 ~]#  cd  /public\par
+\par
+\par
+Read Only share Output:\par
+\par
+[root@ system2 public]# touch nfs.txt\par
+\par
+    touch: cannot touch \lquote 777\rquote : Read-only file system\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+      \par
+                                  \par
+\par
+NFS KERBEROS\par
+\par
+NFS Secure:\par
+\par
+-Share the /nfssecure, enable krb5p security to secure access to the NFS share from\par
+URL {{\field{\*\fldinst{HYPERLINK http://station.network0.example.com/pub/keytabs/system1.keytab }}{\fldrslt{http://station.network0.example.com/pub/keytabs/system1.keytab\ul0\cf0}}}}\f2\fs22\par
+\par
+Create a directory named as protected under /nfssecure The exported directory should have\par
+read/write access from all subdomains of the distric10.example.com domain. Ensure the directory\par
+/nfssecure/protected should be owned by the user harry with read/write permission..\par
+\par
+  \par
+[root@ system1 ~]# yum install nfs* krb5* -y ( we already installed nfs package for previous                               \par
+                                                                            normal share he we just    install krb5 packages only )   \par
+                                                                                               \par
+[root@ system1 ~]#  wget  -O  /etc/krb5.keytab {{\field{\*\fldinst{HYPERLINK http://server1.domain70.example.com/pub/keytabs/system1.keytab }}{\fldrslt{http://server1.domain70.example.com/pub/keytabs/system1.keytab\ul0\cf0}}}}\f2\fs22\par
+\par
+  \par
+Saving to: \lquote /etc/krb5.keytab\rquote\par
+\par
+100%[============================================================================================================>] 1,242       --.-K/s   in 0s      \par
+\par
+2015-12-15 13:06:28 (137 MB/s) - \lquote /etc/krb5.keytab\rquote  saved [1242/1242]   \par
+[root@ system1 ~]# systemctl start nfs-server\par
+\par
+[root@ system1 ~]# systemctl start nfs-secure\par
+\par
+[root@ system1 ~]# systemctl start nfs-secure-server\par
+\par
+[root@ system1 ~]# systemctl enable nfs-server\par
+\par
+[root@ system1 ~]# systemctl enable nfs-secure\par
+\par
+[root@ system1 ~]# systemctl enable nfs-secure-server\par
+\par
+[root@ system1 ~]# mkdir -p  /nfssecure/protected         \par
+\par
+[root@ system1 ~]# firewall-cmd --permanent --add-service=nfs\par
+\par
+[root@ system1 ~]# firewall-cmd --permanent --add-service=rpc-bind\par
+\par
+[root@ system1 ~]# firewall-cmd --permanent  - -add-service=mountd\par
+\par
+[root@ system1 ~]# firewall-cmd - -reload\par
+\par
+\par
+\par
+\par
+\par
+\par
+[root@ system1 ~]# chown  harry  /nfssecure/protected\par
+\par
+[root@ system1 ~]# vim /etc/exports\par
+\par
+/nfssecure    *.district10.example.com(rw,sync,sec=krb5p)\par
+\par
+:wq\par
+\par
+[root@ system1 ~]# systemctl restart nfs-secure-server\par
+\par
+[root@ system1 ~]# showmount -e 172.24.10.110\par
+Export list for server2:\par
+/nfsshare    *.district10.example.com\par
+/nfssecure *.district10.example.com\par
+\par
+\par
+NFS Secure Client:\par
+\par
+\par
+Mount /nfssecure/protected with krb5p secured share on system2 beneath /secure/protected\par
+provided with keytab {{\field{\*\fldinst{HYPERLINK http://station.network0.example.com/pub/keytabs/system2.keytab }}{\fldrslt{http://station.network0.example.com/pub/keytabs/system2.keytab\ul0\cf0}}}}\f2\fs22\par
+The user harry able to write files on /secure directory\par
+\par
+\par
+#  yum install nfs-utils* krb5*  -y\par
+\par
+# mkdir /secure/protected\par
+\par
+# setfacl -m u:harry:rwx /secure/\par
+\par
+# wget  -O  /etc/krb5.keytab   {{\field{\*\fldinst{HYPERLINK http://station.network0.example.com/pub/keytabs/system2.keytab }}{\fldrslt{http://station.network0.example.com/pub/keytabs/system2.keytab\ul0\cf0}}}}\f2\fs22\par
+\par
+# systemctl start nfs-secure\par
+\par
+# systemctl enable nfs-secure\par
+\par
+# vim /etc/fstab\par
+\par
+172.24.10.110:/nfsshare   /public nfs     defaults        0       0\par
+172.24.10.110:/nfssecure/protected   /secure/protected nfs     defaults, sec=krb5p        0       0\par
+\par
+:wq\par
+\par
+# mount -a\par
+\par
+\par
+\par
+\par
+\par
+\par
+# df -h\par
+\par
+Filesystem                                Size           Used     Avail    Use%     Mounted on\par
+/dev/vda1                               10G            3.1G      7.0G     31%     /\par
+devtmpfs                         906M         0      906M      0%     /dev\par
+tmpfs                               921M        140K     921M      1%     /dev/shm\par
+tmpfs                                921M         17M      904M      2%     /run\par
+tmpfs                                921M         0      921M      0%     /sys/fs/cgroup\par
+172.24.10.110:/nfsshare             10G          3.6G      6.5G      36%     /public\par
+172.24.10.110:/nfssecure/protected    10G          3.3G  6.8G      33%     /secure/protected\par
+\par
+# ssh -X harry@system2.district10.example.com\par
+  password:\par
+\par
+# df -h\par
+\par
+Filesystem                                Size           Used     Avail    Use%     Mounted on\par
+/dev/vda1                               10G            3.1G      7.0G     31%     /\par
+devtmpfs                         906M         0      906M      0%     /dev\par
+tmpfs                               921M        140K     921M      1%     /dev/shm\par
+tmpfs                                921M         17M      904M      2%     /run\par
+tmpfs                                921M         0      921M      0%     /sys/fs/cgroup\par
+172.24.10.110:/nfsshare             10G          3.6G      6.5G      36%     /public\par
+172.24.10.110:/nfssecure/protected    10G          3.3G  6.8G      33%     /secure/protected\par
+\par
+\par
+Read/Write Share Output:\par
+\par
+[harry@system2  ~ ] # cd  /secure/protected\par
+\par
+[harry@system2 secure/protected ] # touch one; mkdir two\par
+\par
+[harry@system2 secure ] # ls\par
+one two\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+SAMBA :\par
+\par
+11. SMB access.\par
+Share the /sambadir directory via SMB on system1 Your SMB server must be a member of the STAFF\par
+workgroup The share name must be data .The data share must be available to\par
+district10.example.com domain clients only The data share must be browseable .Susan must have\par
+read access to the share, authenticating with the same password \ldblquote password\rdblquote , if necessary\par
+\par
+\par
+[root@ system1 ~]# yum install samba* -y\par
+\par
+[root@ system1 ~]# systemctl start smb nmb\par
+\par
+[root@ system1 ~]# systemctl enable smb nmb\par
+ln -s '/usr/lib/systemd/system/smb.service' '/etc/systemd/system/multi-user.target.wants/smb.service'\par
+ln -s '/usr/lib/systemd/system/nmb.service' '/etc/systemd/system/multi-user.target.wants/nmb.service'\par
+\par
+[root@ system1 ~]# firewall-cmd --permanent --add-service=samba\par
+success\par
+\par
+[root@ system1 ~]# firewall-cmd --reload\par
+success\par
+\par
+[root@ system1 ~]# mkdir  /sambadir\par
+\par
+[root@ system1 ~]# semanage fcontext -a -t samba_share_t '/sambadir(/.*)?'\par
+\par
+[root@ system1 ~]# restorecon -Rv /sambadir/\par
+restorecon reset /sambadir context unconfined_u:object_r:default_t:s0->unconfined_u:object_r:samba_share_t:s0\par
+\par
+[root@ system1 ~]# ll -Zd /sambadir/\par
+drwxr-xr-x. root root unconfined_u:object_r:samba_share_t:s0 /sambadir/\par
+\par
+(all the samba user will be added in our machine because it all are domain users )\par
+\par
+[root@ system1 ~]# smbpasswd -a Susan\par
+New SMB password:password\par
+Retype new SMB password:password\par
+Added user Susan.\par
+\par
+[root@ system1 ~]# smbpasswd -a frankenstein\par
+New SMB password:SaniTago\par
+Retype new SMB password:SaniTago\par
+Added user frankenstein.\par
+\par
+[root@ system1 ~]# smbpasswd -a martin\par
+New SMB password:SaniTago\par
+Retype new SMB password:SaniTago\par
+Added user martin.\par
+\par
+[root@ system1 ~]# ll -d /sambadir/\par
+drwxr-xr-x. 2 root root 6 Dec 16 10:12 /sambadir/\par
+\par
+[root@ system1 ~]# vim /etc/samba/smb.conf\par
+\par
+Line No 89 : workgroup =  STAFF\par
+\par
+Line No end of the Document:\par
+\par
+[data]\par
+path=/sambadir\par
+hosts allow=172.24.10.\par
+browseable=yes\par
+valid users=susan\par
+read list=susan\par
+\par
+\par
+:wq\par
+\par
+[root@ system1 ~]# systemctl restart smb nmb\par
+\par
+[root@ system1 ~]# smbclient -L //172.24.10.110\par
+\par
+Enter root's password: (just enter)\par
+Anonymous login successful\par
+Domain=[STAFF] OS=[Unix] Server=[Samba 4.1.1]\par
+\par
+    Sharename       Type      Comment\par
+    ---------               ----        -------\par
+    data                   Disk      \par
+    IPC$                 IPC       IPC Service (Samba Server Version 4.1.1)\par
+Anonymous login successful\par
+Domain=[STAFF] OS=[Unix] Server=[Samba 4.1.1]\par
+    Server               Comment\par
+    ---------               -------\par
+    SYSTEM1   Samba Server Version 4.1.1\par
+\par
+    Workgroup        Master\par
+    ---------              -------\par
+    STAFF            \par
+[root@ system1 ~]# smbclient //172.24.10.110/data -U Susan\par
+Enter susan's password:\par
+Domain=[STAFF] OS=[Unix] Server=[Samba 4.1.1]\par
+smb: \\> ls\par
+ .                                   D        0  Wed Dec 16 10:12:30 2015\par
+ ..                                  D        0  Wed Dec 16 10:12:30 2015\par
+\par
+        40913 blocks of size 262144. 27465 blocks available\par
+smb: \\>\par
+\par
+12.SAMBA Mount\par
+\par
+Share /opstack with SMB share name must be cluster.\par
+The user frankenstein has readable,writeable,accesseable to the /opstack SMB share. The user martin\par
+has read access to the /opstack SMB share. Both users should have the SMB passwd "SaniTago".\par
+\par
+The share must be browseable\par
+\par
+Mount the samba share /opstack permanently beneath /mnt/smbspace on system2 as a multiuser\par
+mount. The samba share should be mounted with the credentials of martin.\par
+\par
+[root@ system1 ~]# mkdir /opstack\par
+\par
+[root@ system1 ~]# ll -Zd /opstack/\par
+drwxr-xr-x. root root unconfined_u:object_r:default_t:s0 /opstack/\par
+\par
+[root@ system1 ~]# semanage fcontext -a -t samba_share_t '/opstack(/.*)?'\par
+\par
+[root@ system1 ~]# restorecon -Rv /opstack/\par
+restorecon reset /opstack context unconfined_u:object_r:default_t:s0->unconfined_u:object_r:samba_share_t:s0\par
+\par
+[root@ system1 ~]# ll -lZd /opstack/\par
+drwxr-xr-x. root root unconfined_u:object_r:samba_share_t:s0 /opstack/\par
+\par
+[root@ system1 ~]# chmod 775 /opstack/\par
+[root@ system1 ~]# chgrp frankenstein /opstack/\par
+\par
+[root@ system1 ~]# vim /etc/samba/smb.conf\par
+\par
+Line No 89 : workgroup =  STAFF\par
+\par
+\par
+Line No end of the Document:\par
+\par
+[data]\par
+path=/sambadir\par
+hosts allow=172.24.10.\par
+browseable=yes\par
+valid users=Susan\par
+read list=Susan\par
+\par
+\par
+[cluster]\par
+path=/opstack\par
+valid users=@frankenstein,martin\par
+read list=martin\par
+write list=@frankenstein\par
+\par
+:wq\par
+\par
+\par
+\par
+\par
+[root@server2 ~]# systemctl restart smb.service nmb.service\par
+\par
+\par
+\par
+\par
+\par
+\par
+[root@server2 ~]# smbclient -L //172.24.10.110\par
+Enter root's password:  (just enter)\par
+Anonymous login successful\par
+Domain=[STAFF] OS=[Unix] Server=[Samba 4.1.1]\par
+\par
+    Sharename            Type      Comment\par
+    ---------                 ----      -------\par
+    data                   Disk      \par
+    cluster              Disk      \par
+    IPC$                       IPC       IPC Service (Samba Server Version 4.1.1)\par
+Anonymous login successful\par
+Domain=[STAFF] OS=[Unix] Server=[Samba 4.1.1]\par
+\par
+    Server                  Comment\par
+    ---------                 -------\par
+    SYSTEM1         Samba Server Version 4.1.1\par
+\par
+    Workgroup            Master\par
+    ---------                  -------\par
+    STAFF    \par
+\par
+[root@server2 ~]# smbclient //172.24.10.110/cluster -U frankenstein\par
+Enter frankenstein's password:\par
+Domain=[STAFF] OS=[Unix] Server=[Samba 4.1.1]\par
+smb: \\> mkdir test\par
+ .                                   D        0  Wed Dec 16 10:32:03 2015\par
+ ..                                  D        0  Wed Dec 16 10:32:03 2015\par
+\par
+        40913 blocks of size 262144. 27466 blocks available\par
+smb: \\> exit\par
+\par
+[root@server2 ~]# smbclient //172.24.10.110/cluster -U martin\par
+Enter martin's password:\par
+Domain=[STAFF] OS=[Unix] Server=[Samba 4.1.1]\par
+smb: \\> ls\par
+ .                                   D        0  Wed Dec 16 10:32:03 2015\par
+ ..                                  D        0  Wed Dec 16 10:32:03 2015\par
+\par
+        40913 blocks of size 262144. 27466 blocks available\par
+smb: \\> exit\par
+\par
+SAMBA Client :\par
+\par
+12. Smb mount.\par
+\par
+-mount the samba share /opstack permanently beneath /mnt/smbspace on system2 as a multiuser mount.\par
+-the samba share should be mounted with the credentials of martin.\par
+\par
+[root@desktop2 ~]# yum install cifs-utils* -y\par
+\par
+[root@desktop2 ~]# mkdir /mnt/smbspace\par
+\par
+MultiUser Mount\par
+[root@desktop2 ~]# vim /etc/fstab\par
+\par
+//172.25.2.11/cluster /mnt/smbspace   cifs    credentials=/root/credential.txt,multiuser     0       0\par
+\par
+:wq\par
+\par
+[root@desktop2 ~]# vim /root/credential.txt\par
+\par
+username=martin\par
+password=SaniTago( press enter)\par
+:wq\par
+\par
+[root@desktop2 ~]# mount -a\par
+[root@desktop2 ~]# df -h\par
+Filesystem                            Size     Used    Avail    Use%    Mounted on\par
+/dev/vda1                              10G     3.1G     6.9G     31%    /\par
+devtmpfs                            906M     0     906M      0%     /dev\par
+tmpfs                                  921M     80K    921M      1%       /dev/shm\par
+tmpfs                                 921M    17M    904M      2%    /run\par
+tmpfs                                 921M    0    921M      0%    /sys/fs/cgroup\par
+//172.25.2.11/cluster               10G                 3.3G     6.8G     33%   /mnt/smbspace\par
+172.24.70.25:/nfsshare             10G                3.6G      6.5G      36%     /public\par
+172.25.70.25:/nfssecure/protected    10G                 3.3G  6.8G      33%     /secure/protected\par
+[root@desktop2 ~]# cd /mnt/smbspace/\par
+[root@desktop2 smbspace]# touch samba.txt\par
+read only file system touch cannot allow\par
+\par
+ \par
+   \par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+WEB SERVER\par
+\par
+Normal :\par
+\endash  Implement a webserver for the site {{\field{\*\fldinst{HYPERLINK http://system1.district10.example.com }}{\fldrslt{http://system1.district10.example.com\ul0\cf0}}}}\f2\fs22\par
+\endash  Download the webpage from\par
+  {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/rhce/rhce.html }}{\fldrslt{http://station.district0.example.com/pub/rhce/rhce.html\ul0\cf0}}}}\f2\fs22\par
+\endash  rename the downloaded file in to index.html.\par
+\endash  copy the file into the document root.\par
+\endash  Do not make any modification with the content of the index.html.\par
+\endash  Webserver must be available to clients with domain district10.example.com\par
+\endash  Clients within my22ilt.org should NOT access the webserver on your systems\par
+\par
+\par
+\par
+\par
+[root@system1 ~]# systemctl start httpd\par
+[root@system1 ~]#  systemctl enable httpd\par
+ln -s '/usr/lib/systemd/system/httpd.service' '/etc/systemd/system/multi-user.target.wants/httpd.service'\par
+[root@system1 ~]#  firewall-cmd --permanent --add-service=http\par
+success\par
+[root@system1 ~]#  firewall-cmd --reload\par
+success\par
+[root@system1 ~]#  cd /var/www/html/\par
+[root@system1 html]# wget  {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/rhce/rhce.html }}{\fldrslt{http://station.district0.example.com/pub/rhce/rhce.html\ul0\cf0}}}}\f2\fs22\par
+\par
+[root@system1  html]# ls\par
+rhce.html\par
+[root@system1  html]# mv rhce.html index.html\par
+[root@system1  html]# ls\par
+index.html\par
+[root@system1  html]# mv rhce.html index.html\par
+[root@system1  html]# ls\par
+index.html\par
+[root@system1  html]# systemctl restart httpd.service  \par
+[root@system1  html]# vim /etc/httpd/conf/httpd.conf\par
+\par
+\par
+<virtualhost *:80>\par
+servername system1.district10.example.com\par
+documentroot /var/www/html\par
+</virtualhost>\par
+\par
+[root@system1  html]# httpd -t\par
+Syntax OK\par
+[root@system1  html]# systemctl restart httpd.service\par
+[root@system1  html]# cd\par
+\par
+\par
+\par
+\par
+[root@system1 ~]# vim /etc/hosts.deny\par
+[root@system1 ~]# cat /etc/hosts.deny\par
+#\par
+# hosts.deny    This file contains access rules which are used to\par
+#        deny connections to network services that either use\par
+#        the tcp_wrappers library or that have been\par
+#        started through a tcp_wrappers-enabled xinetd.\par
+#\par
+#        The rules in this file can also be set up in\par
+#        /etc/hosts.allow with a 'deny' option instead.\par
+#\par
+#        See 'man 5 hosts_options' and 'man 5 hosts_access'\par
+#        for information on rule syntax.\par
+#        See 'man tcpd' for information on tcp_wrappers\par
+#\par
+#\par
+sshd: *.my133ilt.org\par
+httpd: *.my22ilt.org\par
+\par
+:wq\par
+\par
+[root@ system1 ~]# vim /etc/hosts.allow\par
+sshd: *.district10.example.com   \par
+httpd: *.district10.example.com\par
+\par
+:wq\par
+\par
+[root@system1  ~]# systemctl restart httpd.service\par
+[root@system1 ~]#\par
+\par
+use firefox\par
+\par
+address :  {{\field{\*\fldinst{HYPERLINK http://server70.example.com/ }}{\fldrslt{http://server70.example.com/\ul0\cf0}}}}\f2\fs22\par
+\par
+this normal webpage\par
+\par
+[root@system1 ~]# yum install elinks* -y\par
+\par
+[root@system1 ~]# elinks system1.example.com\par
+\par
+\par
+this normal webpage\par
+\par
+client side\par
+\par
+[root@system1 ~]# elinks system1.example.com\par
+\par
+this normal webpage\par
+\par
+\par
+Secure Web Page Hosting\par
+\par
+\par
+Secured webserver\par
+\endash  configure the website {{\field{\*\fldinst{HYPERLINK https://system1.district10.example.com }}{\fldrslt{https://system1.district10.example.com\ul0\cf0}}}}\f2\fs22  with TLS\par
+\endash  SSLCertificate file {{\field{\*\fldinst{HYPERLINK http://classroom.example.com/pub/rhce/tls/certs/system1.networkX.crt }}{\fldrslt{http://classroom.example.com/pub/rhce/tls/certs/system1.networkX.crt\ul0\cf0}}}}\f2\fs22\par
+\endash  SSLCertificatekeyfile\par
+{{\field{\*\fldinst{HYPERLINK http://classroom.example.com/pub/rhce/tls/private/system1.networkX.key }}{\fldrslt{http://classroom.example.com/pub/rhce/tls/private/system1.networkX.key\ul0\cf0}}}}\f2\fs22\par
+\endash  SSL CA certificate file {{\field{\*\fldinst{HYPERLINK http://classroom..example.com/pub/exampleca.crt }}{\fldrslt{http://classroom..example.com/pub/exampleca.crt\ul0\cf0}}}}\f2\fs22\par
+\par
+[root@system1 ~]# yum install httpd* mod_ssl* -y\par
+\par
+\par
+[root@system1 ~]# vim /etc/httpd/conf.d/ssl.conf\par
+\par
+\par
+\par
+Line No 56: <VirtualHost _default_:443>\par
+Line No 59: DocumentRoot "/var/www/html"\par
+Line No 60:ServerName  {{\field{\*\fldinst{HYPERLINK https://system1.district10example.com:443 }}{\fldrslt{https://system1.district10example.com:443\ul0\cf0}}}}\f2\fs22\par
+Line No 70:SSLEngine on\par
+Line No 75:SSLProtocol all -SSLv2\par
+Line No 80:SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5\par
+Line No 93:(remove #)SSLHonorCipherOrder on\par
+\par
+Line No 100: SSLCertificateFile /etc/pki/tls/certs/system1.network10.crt   (change local host to your          \par
+                                                                                                                                         system hostname)    \par
+\par
+Line No 107: SSLCertificateKeyFile /etc/pki/tls/private/system1.network10.key  (change local host to\par
+                                                                                                                                   your system hostname)\par
+\par
+\par
+Line No 122 : SSLCACertificateFile /etc/pki/tls/certs/exampleca.crt\par
+\par
+</virtualhost>\par
+\par
+[root@system1 ~]# cd /etc/pki/tls/certs/\par
+[root@system1  certs]# wget {{\field{\*\fldinst{HYPERLINK http://classroom.example.com/pub/tls/certs/system1.network10.crt }}{\fldrslt{http://classroom.example.com/pub/tls/certs/system1.network10.crt\ul0\cf0}}}}\f2\fs22\par
+\par
+[root@system1  certs]# wget {{\field{\*\fldinst{HYPERLINK http://classroom.example.com/pub/exampleca.crt }}{\fldrslt{http://classroom.example.com/pub/exampleca.crt\ul0\cf0}}}}\f2\fs22\par
+\par
+[ [root@system1  certs]# cd /etc/pki/tls/private/\par
+\par
+[root@system1  private]# wget {{\field{\*\fldinst{HYPERLINK http://classroom.example.com/pub/tls/private/system1.network10.key }}{\fldrslt{http://classroom.example.com/pub/tls/private/system1.network10.key\ul0\cf0}}}}\f2\fs22\par
+\par
+[root@system1  private]# cd\par
+[root@system1 ~]# systemctl restart httpd.service\par
+\par
+\par
+\par
+[root@system1 ~]# firewall-cmd --permanent --add-service=https\par
+success\par
+\par
+[root@system1 ~]# firewall-cmd --reload\par
+success\par
+[root@system1 ~]#\par
+\par
+\par
+\par
+use firefox\par
+\par
+address :  {{\field{\*\fldinst{HYPERLINK https://system1.example.com/ }}{\fldrslt{https://system1.example.com/\ul0\cf0}}}}\f2\fs22\par
+\par
+this normal webpage\par
+\par
+\par
+\par
+Confidential Web Hosting\par
+\par
+webpage content modification.\par
+\par
+Implement website for {{\field{\*\fldinst{HYPERLINK http://system1.district10.example.com/owndir }}{\fldrslt{http://system1.district10.example.com/owndir\ul0\cf0}}}}\f2\fs22\par
+Create a directory named as \ldblquote owndir\rdblquote  under the document root of webserver\par
+Download {{\field{\*\fldinst{HYPERLINK http://station.network0.example.com/pub/rhce/restrict.html }}{\fldrslt{http://station.network0.example.com/pub/rhce/restrict.html\ul0\cf0}}}}\f2\fs22\par
+rename the file into index.html\par
+The content of the owndir should be visible to everyone browsing from your local\par
+system but should not be accessible from other location\par
+User harry can edit the contents of the directory\par
+\par
+\par
+[root@system1 ~]#  cd /var/www/html/\par
+\par
+[root@system1 html]# mkdir owndir\par
+\par
+[root@system1 html]# cd owndir/\par
+\par
+[root@system1 owndir]# wget {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/rhce/restrict.html }}{\fldrslt{http://station.district0.example.com/pub/rhce/restrict.html\ul0\cf0}}}}\f2\fs22\par
+\par
+\par
+[root@system1 owndir]# ls\par
+\par
+restrict.html\par
+\par
+[root@system1 owndir]# mv restrict.html index.html\par
+\par
+[root@system1 owndir]# ls\par
+\par
+index.html\par
+\par
+[root@system1 owndir]# vim /etc/httpd/conf/httpd.conf\par
+\par
+[root@system1 owndir]# chown harry /var/www/html/owndir/\par
+\par
+\par
+\par
+<virtualhost *:80>\par
+servername system1.district10.example.com\par
+documentroot /var/www/html\par
+</virtualhost>\par
+\par
+<directory /var/www/html/owndir>\par
+order deny,allow\par
+deny from all\par
+allow from 172.24.10.110\par
+</directory>\par
+\par
+[root@system1 ~]# systemctl restart httpd.service\par
+\par
+\par
+firefox:\par
+\par
+{{\field{\*\fldinst{HYPERLINK http://system1.district10.example.com/owndir/ }}{\fldrslt{http://system1.district10.example.com/owndir/\ul0\cf0}}}}\f2\fs22\par
+\par
+\par
+  this restricted page\par
+\par
+\par
+client :\par
+\par
+\par
+[root@system2 ~]# firefox\par
+\par
+\par
+{{\field{\*\fldinst{HYPERLINK http://system1.district10.example.com/owndir/ }}{\fldrslt{http://system1.district10.example.com/owndir/\ul0\cf0}}}}\f2\fs22\par
+\par
+Forbidden\par
+You don't have permission to access /owndir on this server.\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+Virtual hosting.\par
+                                       \par
+\par
+\endash  Setup a virtual host with an alternate document root .\par
+\endash  Extend your web to include a virtual for the site {{\field{\*\fldinst{HYPERLINK http://www.district10.example.com }}{\fldrslt{http://www.district10.example.com\ul0\cf0}}}}\f2\fs22\par
+\endash  Set the document root as   /usr/local/vhost\par
+\endash  Download {{\field{\*\fldinst{HYPERLINK http://station.network0.example.com/pub/rhce/vhost.html }}{\fldrslt{http://station.network0.example.com/pub/rhce/vhost.html\ul0\cf0}}}}\f2\fs22\par
+\endash  rename it as index.html place this document root of the virtual host\par
+\endash  Note: The other websites configures for your server must still accessible.\par
+vhosts.networkX.example.com is already provide by the name server on\par
+example.com\par
+\par
+\par
+[root@system1~]# mkdir /usr/local/vhost\par
+\par
+[root@system1~]# cd /usr/local/vhost\par
+\par
+[root@system1 vhost]# wget  {{\field{\*\fldinst{HYPERLINK http://station.network0.example.com/pub/rhce/vhost.html }}{\fldrslt{http://station.network0.example.com/pub/rhce/vhost.html\ul0\cf0}}}}\f2\fs22\par
+\par
+[root@system1 vhost]# semanage fcontext -a -t httpd_sys_content_t ' /usr/local/SIT\par
+(/.*)?'\par
+\par
+[root@system1 vhost]# restorecon -Rv /usr/local/SIT/\par
+restorecon reset /usr/local/vhost context unconfined_u:object_r:usr_t:s0->unconfined_u:object_r:httpd_sys_content_t:s0\par
+restorecon reset /usr/local/vhost/vhost.html context unconfined_u:object_r:usr_t:s0->unconfined_u:object_r:httpd_sys_content_t:s0\par
+\par
+[root@system1 vhost]# ls\par
+vhost.html\par
+\par
+[root@system1 vhost]# mv vhost.html index.html\par
+\par
+[root@system1 SIT]# ls\par
+index.html\par
+\par
+[root@system1 SIT]# vim /etc/httpd/conf/httpd.conf\par
+\par
+<virtualhost *:80>\par
+servername {{\field{\*\fldinst{HYPERLINK www.district10.example.com }}{\fldrslt{www.district10.example.com\ul0\cf0}}}}\f2\fs22\par
+documentroot /usr/local/vhosts\par
+</virtualhost>\par
+\par
+<directory /usr/local/vhosts>\par
+require all granted\par
+</directory>\par
+\par
+\par
+\par
+[root@system1 ~]# vim /etc/hosts\par
+\par
+172.25.10.110  {{\field{\*\fldinst{HYPERLINK www.district10.example.com }}{\fldrslt{www.district10.example.com\ul0\cf0}}}}\f2\fs22\par
+:wq\par
+\par
+firefox\par
+ {{\field{\*\fldinst{HYPERLINK http://www.district10.example.com/ }}{\fldrslt{http://www.district10.example.com/\ul0\cf0}}}}\f2\fs22\par
+\par
+this is virtual web page\par
+\par
+client side :\par
+(In our Examination no need to put hosts entry , if \ldblquote hosts entry\rdblquote  entered also no issuses)\par
+\par
+[root@system2 ~]# vim /etc/hosts\par
+\par
+ 172.25.10.110  {{\field{\*\fldinst{HYPERLINK www.district10.example.com }}{\fldrslt{www.district10.example.com\ul0\cf0}}}}\f2\fs22\par
+\par
+:wq\par
+\par
+firefox\par
+ {{\field{\*\fldinst{HYPERLINK http://www.district10.example.com/ }}{\fldrslt{http://www.district10.example.com/\ul0\cf0}}}}\f2\fs22\par
+\par
+this is virtual web page\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+Dynamic Webpage configuration.\par
+\par
+-configure website {{\field{\*\fldinst{HYPERLINK http://dynamic.district10.example.com:8899 }}{\fldrslt{http://dynamic.district10.example.com:8899\ul0\cf0}}}}\f2\fs22  on system1 with the document root /var/www/scripts\par
+-site should executes webapp.wsgi\par
+-page is already provided on {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/webapp.wsgi }}{\fldrslt{http://station.district0.example.com/pub/webapp.wsgi\ul0\cf0}}}}\f2\fs22\par
+-content of the script should not be modified.\par
+\par
+\par
+[root@system1~]# mkdir -p /var/www/scripts\par
+\par
+[root@system1~]#  yum install mod_wsgi* -y\par
+\par
+[root@system1~]# cd /var/www/scripts\par
+\par
+[root@system1~]# semanage fcontext -a -t httpd_sys_script_exec_t '/var/www/scripts(/.*)?'\par
+\par
+[root@system1~]#  semanage port -a -t http_port_t -p tcp 8899\par
+\par
+[root@system1~]# firewall-cmd - -permanent  - -add-port=8899/tcp\par
+\par
+[root@system1~]# firewall-cmd - -reload\par
+\par
+\par
+[root@system1~]#  wget   {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/webapp.wsgi }}{\fldrslt{http://station.district0.example.com/pub/webapp.wsgi\ul0\cf0}}}}\f2\fs22\par
+\par
+\par
+\par
+[root@server70 ~]# restorecon -Rv /var/www/scripts\par
+\par
+restorecon reset /var/www/scripts  context unconfined_u:object_r:var_t:s0->unconfined_u:object_r:httpd_sys_script_exec_t:s0\par
+restorecon reset /var/www/scripts/webapp.wsgi context unconfined_u:object_r:var_t:s0->unconfined_u:object_r:httpd_sys_script_exec_t:s0\par
+\par
+\par
+[root@server70 ~]# vim /etc/httpd/conf/httpd.conf\par
+\par
+listen 8899\par
+<virtualhost *:8899>\par
+servername dynamic.district10.example.com\par
+documentroot /var/www/scripts\par
+WSGIScriptAlias / /var/www/scripts/webapp.wsgi\par
+</virtualhost>\par
+\par
+\par
+<directory /var/www/scripts>\par
+require all granted\par
+</directory>\par
+\par
+[root@system1 ~]# vim /etc/hosts\par
+\par
+172.25.10.110  dynamic.district10.example.com\par
+:wq\par
+\par
+O/P\par
+\par
+Goto Firefox\par
+\par
+ Address: dynamic.distrcit10.example.com:8899\par
+\par
+      UNIX EPOCH time is now: 1450238773.24\par
+  (if you press F5 time time will be automatically changed)\par
+\par
+18. Script 1\par
+\par
+-create a script on serverX called /root/random with following details.\par
+-When run as /root/random user, should bring the output as kernel\par
+-When run as /root/random kernel, should bring the output as user\par
+-When run with any other arguments or without argument,\par
+should bring the stderr as /root/random user|kernel\par
+\par
+[root@server2 ~]# vim /root/random\par
+read a\par
+case $a in\par
+user    )       echo    "kernel";;\par
+kernel    )       echo    "user";;\par
+*    )       echo    "/root/random user|kernel" >> stderr\par
+esac\par
+\par
+[root@server2 ~]# chmod a+x /root/random\par
+[root@server2 ~]# /root/random\par
+user\par
+kernel\par
+[root@server2 ~]# /root/random\par
+kernel\par
+user\par
+[root@server2 ~]# /root/random\par
+f\par
+[root@server2 ~]# ls\par
+anaconda-ks.cfg  random  stderr\par
+[root@server2 ~]# cat stderr\par
+/root/random user|kernel\par
+[root@server2 ~]#  \par
+\par
+19. Script 2\par
+\par
+-Create a script on serverX called /root/createusers\par
+-When this script is called with the testfile argument, it should add all the users from the file\par
+-Download the file from {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/rhce/testfile }}{\fldrslt{http://station.district0.example.com/pub/rhce/testfile\ul0\cf0}}}}\f2\fs22\par
+-All users should have the login shell as /bin/false, password not required.\par
+-When this script is called with anyother arguments, it should print the message as Input File Not Found\par
+-When this script is run without any arguments, it should display Usage: /root/createusers\par
+Note: If the users are added no need to delete.\par
+\par
+\par
+[root@server2 ~]# wget {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/testfile }}{\fldrslt{http://station.district0.example.com/pub/testfile\ul0\cf0}}}}\f2\fs22\par
+\par
+\par
+[root@server2 ~]# cat testfile\par
+arul\par
+john\par
+david\par
+\par
+[root@server2 ~]# vim /root/createusers\par
+\par
+a=""\par
+case "$@" in\par
+testfile        )       for i in `cat /root/testfile`\par
+do\par
+useradd -s      /bin/false      $i\par
+done;;\par
+$a)echo "Input File Not Found";;\par
+*)echo  "Usage: /root/createusers";;\par
+esac\par
+\par
+[root@server2 ~]# chmod a+x /root/createusers\par
+\par
+[root@server2 ~]# /root/createusers\par
+Usage: /root/createusers\par
+\par
+[root@server2 ~]# /root/createusers 111\par
+Input File Not Found\par
+\par
+\par
+\par
+[root@server2 ~]# tail -n 5 /etc/passwd\par
+pulse:x:171:171:PulseAudio System Daemon:/var/run/pulse:/sbin/nologin\par
+gdm:x:42:42::/var/lib/gdm:/sbin/nologin\par
+gnome-initial-setup:x:993:991::/run/gnome-initial-setup/:/sbin/nologin\par
+tcpdump:x:72:72::/:/sbin/nologin\par
+apache:x:48:48:Apache:/usr/share/httpd:/sbin/nologin\par
+\par
+[root@server2 ~]# /root/createusers testfile\par
+\par
+[root@server2 ~]# tail -n 5 /etc/passwd\par
+tcpdump:x:72:72::/:/sbin/nologin\par
+apache:x:48:48:Apache:/usr/share/httpd:/sbin/nologin\par
+arul:x:1001:1001::/home/arul:/bin/false\par
+john:x:1002:1002::/home/john:/bin/false\par
+david:x:1003:1003::/home/david:/bin/false\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+MARIADB :\par
+\par
+\par
+22.MaridDB Configuration\par
+Configure a MariaDB on System1 with a database name Contacts.\par
+The Database must be accessible locally only.\par
+The root password must be zaldebro.\par
+Apart from root, only the user Zyuichi must be able to query the Contacts Database.\par
+Zyuichi must be identified by zaldebro.\par
+Restore a database on system1 from the backup file\par
+{{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/rhce/backup.mdb }}{\fldrslt{http://station.district0.example.com/pub/rhce/backup.mdb\ul0\cf0}}}}\f2\fs22\par
+23.MariaDB Query\par
+Find the first name of user with password \ldblquote ecosystem\rdblquote\par
+\par
+MariaDB [student]> use mysql\par
+\par
+MariaDB [mysql]> show tables;\par
+\par
+MariaDB [mysql]> show grants for john@'172.25.5.%';\par
+\par
+MariaDB [mysql]> select * from tables_priv;\par
+\par
+[root@server2 ~]# yum groupinstall mariadb mariadb-client -y\par
+\par
+[root@server2 ~]# systemctl start mariadb\par
+[root@server2 ~]# systemctl enable mariadb\par
+ln -s '/usr/lib/systemd/system/mariadb.service' '/etc/systemd/system/multi-user.target.wants/mariadb.service'\par
+[root@server2 ~]# firewall-cmd --permanent --add-service=mysql\par
+success\par
+[root@server2 ~]# firewall-cmd --permanent --add-port=3306/tcp\par
+success\par
+[root@server2 ~]# firewall-cmd --reload\par
+success\par
+[root@server2 ~]# vim /etc/my.cnf\par
+[mysqld]\par
+datadir=/var/lib/mysql\par
+socket=/var/lib/mysql/mysql.sock\par
+skip-networking=1 (this line )  \{note if skip-networking=1 means deny remote login\par
+                                                     skip-networking=0 means allow remote login)\par
+\par
+[root@server2 ~]# mysql_secure_installation\par
+\par
+\par
+Enter current password for root (enter for none): ( if fresh installation means just enter)\par
+Set root password? [Y/n] Y\par
+\par
+New password: zaldebro\par
+Re-enter new password: zaldebro\par
+Password updated successfully!\par
+Reloading privilege tables..\par
+... Success!\par
+Remove anonymous users? [Y/n] y\par
+... Success!\par
+\par
+Disallow root login remotely? [Y/n] y\par
+... Success!\par
+\par
+Remove test database and access to it? [Y/n] y\par
+- Dropping test database...\par
+... Success!\par
+- Removing privileges on test database...\par
+... Success!\par
+Reload privilege tables now? [Y/n] y\par
+... Success!\par
+\par
+\par
+[root@server2 ~]# mysql -u root -p\par
+Enter password: zaldebro\par
+\par
+Welcome to the MariaDB monitor.  Commands end with ; or \\g.\par
+Your MariaDB connection id is 10\par
+Server version: 5.5.35-MariaDB MariaDB Server\par
+\par
+Copyright (c) 2000, 2013, Oracle, Monty Program Ab and others.\par
+\par
+Type 'help;' or '\\h' for help. Type '\\c' to clear the current input statement.\par
+\par
+MariaDB [(none)]> show databases;\par
++--------------------+\par
+| Database           |\par
++--------------------+\par
+| information_schema |\par
+| mysql              |\par
+| performance_schema |\par
++--------------------+\par
+3 rows in set (0.00 sec)\par
+\par
+MariaDB [(none)]> create database Contacts;\par
+\par
+MariaDB [(none)]> show databases;\par
++--------------------+\par
+| Database           |\par
++--------------------+\par
+| information_schema |\par
+| mysql              |\par
+| performance_schema |\par
+| Contacts            |\par
++--------------------+\par
+4 rows in set (0.00 sec)\par
+\par
+MariaDB [(none)]> exit\par
+Bye\par
+\par
+[root@server2 ~]# wget  {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/rhce/backup.mdb }}{\fldrslt{http://station.district0.example.com/pub/rhce/backup.mdb\ul0\cf0}}}}\f2\fs22\par
+--2015-12-16 12:24:49--  {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/rhce/backup.mdb }}{\fldrslt{http://station.district0.example.com/pub/rhce/backup.mdb\ul0\cf0}}}}\f2\fs22\par
+Resolving c (c)... 172.25.254.254\par
+Connecting to c (c)|172.25.254.254|:80... connected.\par
+HTTP request sent, awaiting response... 200 OK\par
+Length: 3785 (3.7K)\par
+Saving to: \lquote backup.mdb\rquote\par
+\par
+100%[============================================================================================================>] 3,785       --.-K/s   in 0s      \par
+\par
+2015-12-16 12:24:49 (460 MB/s) - \lquote backup.mdb\rquote  saved [3785/3785]\par
+\par
+[root@server2 ~]# ls\par
+anaconda-ks.cfg  backup.mdb\par
+\par
+[root@server2 ~]# mysql -u root -p Contacts < backup.mdb\par
+Enter password: zaldebro\par
+\par
+[root@server2 ~]# mysql -u root -p\par
+Enter password: zaldebro\par
+\par
+MariaDB [(none)]> use  Contacts\par
+\par
+Database changed\par
+MariaDB [Contacts]> show tables;\par
++-------------------+\par
+| Tables_in_student |\par
++-------------------+\par
+| category          |\par
+| manufacturer      |\par
+| product           |\par
++-------------------+\par
+3 rows in set (0.00 sec)\par
+\par
+MariaDB [Contacts]> describe product;\par
++-----------------+--------------+------+-----+---------+----------------+------------\par
+| Field                   | Type            | Null | Key | Default  | Extra                  |\par
++-----------------+--------------+------+-----+---------+----------------+-----------------\par
+| id                     | int(11)                  | NO   | PRI | NULL    | auto_increment |\par
+| name                    | varchar(100)         | NO   |        | NULL    |                  |\par
+| price                  | double          | NO   |        | NULL    |                            |\par
+| stock                   | int(11)         | NO   |        | NULL    |                          |\par
+| id_category           | int(11)         | NO   |        | NULL    |                          |\par
+| id_manufacturer    | int(11)         | NO   |        | NULL    |                          |\par
++-----------------+--------------+------+-----+---------+----------------+\par
+6 rows in set (0.00 sec)\par
+\par
+MariaDB [student]> help grant\par
+  example:\par
+\par
+CREATE USER 'jeffrey'@'localhost' IDENTIFIED BY 'mypass';\par
+GRANT ALL ON db1.* TO 'jeffrey'@'localhost';\par
+GRANT SELECT ON db2.invoice TO 'jeffrey'@'localhost';\par
+GRANT USAGE ON *.* TO 'jeffrey'@'localhost' WITH MAX_QUERIES_PER_HOUR 90;\par
+\par
+MariaDB [student]> create user 'Zyuichi'@'localhost' identified by 'zaldebro';\par
+Query OK, 0 rows affected (0.00 sec)\par
+\par
+MariaDB [student]> grant all on student.product to 'Zyuichi'@'localhost';\par
+Query OK, 0 rows affected (0.00 sec)\par
+\par
+MariaDB [student]> Select  first name from tablename where password=\rdblquote echosystem\rdblquote ;\par
+\par
+\par
+Client :\par
+[root@desktop2 ~]# yum groupinstall mariadb-client* -y\par
+[root@desktop2 ~]# mysql -u root -p -h 172.25.2.11\par
+Enter password:\par
+ERROR 1045 (28000): Access denied for user 'root'@'desktop2.example.com' (using password: YES)\par
+[root@desktop13 ~]# mysql -u Zyuichi -p -h 172.25.13.11\par
+Enter password: zaldebro\par
+ERROR 1130 (HY000): Host 'desktop13.example.com' is not allowed to connect to this MariaDB server\par
+[root@desktop13 ~]#\par
+17) script:1\par
+\par
+--->create a script on serverX called /root/random with the following details\par
+--->when run as /root/random Postconf, should bring the output as "Postroll"\par
+--->when run as /root/random Postroll, should bring the output as "Postconf"\par
+--->when run with only other argument or wihout argument, should bring the stderr as\par
+"/root/random Postconf | Postroll"\par
+\par
+$@ is to refer argument as a separate word\par
+case Stating this is conditioned structure to reduce difficulties from a normal statement like   \par
+        if/then/elif/then/else\par
+\ldblquote\rdblquote   To disabled meaning of special characters\par
+\par
+#vim /root/random\par
+case $@ in\par
+postconf ) echo "Postroll";;\par
+Postroll ) echo "postconf";;\par
+        *) echo "/root/random postconf | Postroll";;\par
+esac\par
+\par
+#chmod a+x /root/random\par
+\par
+\par
+\par
+18) script 2:\par
+\par
+--->create a script on serverX called /root/createusers\par
+--->when this script is called with the test file argument, it should add all the users from the file\par
+--->downloaded the fire from {{\field{\*\fldinst{HYPERLINK http://station.network0.example.com/pub/testfile }}{\fldrslt{http://station.network0.example.com/pub/testfile\ul0\cf0}}}}\f2\fs22\par
+--->all user should have the login shell as /bin/false, passwd not required.\par
+--->when this script is called wih anyother argument, it should print the message "Input File Not Found"\par
+--->When this script is run without any argument, it should dissplay "Usage "/root/createuser"\par
+Note:- If the users are added no need to delete.\par
+\par
+\par
+\par
+Ans:\par
+#wget {{\field{\*\fldinst{HYPERLINK http://classroom.example.com/pub/testfile }}{\fldrslt{http://classroom.example.com/pub/testfile\ul0\cf0}}}}\f2\fs22\par
+\par
+#vim /root/createusers\par
+\par
+a=""\par
+case $@ in\par
+testfile ) for b in `cat testfile`\par
+do\par
+useradd -s /bin/false $b;\par
+done;;\par
+$a ) echo "Usage:/root/createusers";;\par
+* ) echo "Input file Not Found";;\par
+esac\par
+\par
+#chmod a+x /root/createusers\par
+\par
+\par
+\par
+\par
+21. ISCSI Storage.\par
+               -  Create a new 3GB target on your system1.district10.example.com.\par
+               -  The logical block name should be lvm The server should export an iscsi disk\par
+                  called iqn.2015-12.com.example.district10:system1\par
+               -  This target should only be allowed  only be allowed to system2\par
+\par
+\par
+[root@server2 ~]# yum install target* -y\par
+[root@server2 ~]# systemctl start target\par
+[root@server2 ~]# systemctl enable target\par
+ln -s '/usr/lib/systemd/system/target.service' '/etc/systemd/system/multi-user.target.wants/target.service'\par
+[root@server2 ~]# firewall-cmd --permanent --add-port=3260/tcp\par
+success\par
+[root@server2 ~]# firewall-cmd --reload\par
+success\par
+[root@server2 ~]# fdisk -l\par
+[root@server2 ~]# fdisk /dev/vda\par
+Command (m for help): p\par
+   Device Boot      Start         End      Blocks   Id  System\par
+/dev/vda1   *        2048   472143871   236070912   83  Linux\par
+/dev/vda2       472143872   488396799     8126464   82  Linux swap / Solaris\par
+Command (m for help): n\par
+Partition type:\par
+  p   primary (0 primary, 0 extended, 4 free)\par
+  e   extended\par
+Select (default p): e\par
+Partition number (1-4, default 1):\par
+First sector (2048-20971519, default 2048):\par
+Using default value 2048\par
+Last sector, +sectors or +size\{K,M,G\} (2048-20971519, default 20971519):\par
+Using default value 20971519\par
+Partition 1 of type Extended and of size 10 GiB is set\par
+Command (m for help): n\par
+Partition type:\par
+  p   primary (0 primary, 1 extended, 3 free)\par
+  l   logical (numbered from 5)\par
+Select (default p): l\par
+Adding logical partition 5\par
+\par
+First sector (4096-20971519, default 4096):\par
+Using default value 4096\par
+Last sector, +sectors or +size\{K,M,G\} (4096-20971519, default 20971519): +4G\par
+Partition 5 of type Linux and of size 4 GiB is set\par
+Command (m for help): t\par
+Partition number (1,5, default 5): 5\par
+Hex code (type L to list all codes): 8e\par
+Changed type of partition 'Linux' to 'Linux LVM'\par
+Command (m for help): w\par
+The partition table has been altered!\par
+Calling ioctl() to re-read partition table.\par
+Syncing disks.\par
+[root@server2 ~]# partprobe /dev/vda\par
+[root@server2 ~]# pvcreate /dev/vda5\par
+ Physical volume "/dev/vda5" successfully created\par
+[root@server2 ~]# vgcreate one /dev/vdb5\par
+ Volume group "one" successfully created\par
+[root@server2 ~]# lvcreate -L +3G -n two /dev/mapper/one\par
+ Logical volume "two" created\par
+[root@server2 ~]# targetcli\par
+/> /backstores/block create lvm /dev/mapper/one-two\par
+Created block storage object lvm using /dev/mapper/one-two.\par
+\par
+/> /iscsi create  iqn.2015-12.com.example.district10:system1\par
+Created target iqn.2015-12.com.example.district10:system1.\par
+Created TPG 1.\par
+/> /iscsi/iqn.2015-12.com.example.district10:system1/tpg1/acls create  iqn.2015- 12.com.example.district10:system2\par
+Created Node ACL for iqn.2015-12.com.example.district10:system2\par
+/> /iscsi/iqn.2015-12.com.example.district10:system1/tpg1/luns create /backstores/block/lvm\par
+Created LUN 0.\par
+Created LUN 0->0 mapping in node ACL iqn.2015-12.com.example.district10:system2\par
+/> /iscsi/iqn.2015-12.com.example.district10:system2/tpg1/portals create 172.24.10.110\par
+Using default IP port 3260\par
+Created network portal 172.24.10.110:3260.\par
+/> saveconfig\par
+Last 10 configs saved in /etc/target/backup.\par
+Configuration saved to /etc/target/saveconfig.json\par
+/> exit\par
+Global pref auto_save_on_exit=true\par
+Last 10 configs saved in /etc/target/backup.\par
+Configuration saved to /etc/target/saveconfig.json\par
+\par
+[root@server2 ~]# systemctl restart target.service\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+ ISCSI Initiator\par
+             \par
+-The system1 provides an iscsi port(3260).\par
+-connect the disk with system2.district10.example.com and configure filesystem with the following requirements.\par
+-Create 2040 MB partition on ISCSI block device and assign the filesystem as ext3.\par
+-Mount the volume under /mnt/initiator at the system boot time.\par
+\par
+\par
+\par
+Client :\par
+[root@desktop2 ~]# yum install iscsi-initiator-utils* -y\par
+[root@desktop2 ~]# vim /etc/iscsi/initiatorname.iscsi\par
+InitiatorName=iqn.2015-12.com.example.district10:system2\par
+:wq\par
+[root@desktop2 ~]# systemctl restart iscsi iscsid.service\par
+[root@desktop2 ~]# systemctl enable iscsi iscsid.service\par
+ln -s '/usr/lib/systemd/system/iscsid.service' '/etc/systemd/system/multi-user.target.wants/iscsid.service'\par
+[root@desktop2 ~]# iscsiadm -m discovery -t st -p 172.25.2.11\par
+172.25.2.11:3260,1 iqn.2015-12.com.example.district10:system1\par
+[root@desktop2 ~]# iscsiadm -m node -T iqn.2015-12.com.example.district10:system1 -p 172.25.2.11\par
+[root@desktop2 ~]# iscsiadm -m node -T iqn.2015-12.com.example.district10:system1 -p 172.25.2.11 -l\par
+Logging in to [iface: default, target: iqn.2015-12.com.example.district10:system1, portal: 172.25.2.11,3260] (multiple)\par
+Login to [iface: default, target: iqn.2015-12.com.example.district10:system1, portal: 172.25.2.11,3260] successful.\par
+[root@desktop2 ~]# lsblk\par
+NAME   MAJ:MIN RM SIZE RO TYPE MOUNTPOINT\par
+sda          8:0       0   3G   0 disk\par
+vda      253:0       0  10G  0 disk\par
+\f3\u9492?\u9472?\f0 vda1 253:1   0  10G  0 part /\par
+vdb       253:16   0  10G  0 disk\par
+\par
+\par
+[root@desktop2 ~]# fdisk /dev/sda\par
+Command (m for help): p\par
+ Device Boot      Start         End      Blocks   Id  System\par
+Command (m for help): n\par
+Partition type:\par
+  p   primary (0 primary, 0 extended, 4 free)\par
+  e   extended\par
+Select (default p): p\par
+Partition number (1-4, default 1):\par
+First sector (8192-6291455, default 8192):\par
+Using default value 8192\par
+Last sector, +sectors or +size\{K,M,G\} (8192-6291455, default 6291455): +2048M\par
+Partition 1 of type Linux and of size +2048MBs  set\par
+\par
+Command (m for help): p\par
+ Device Boot      Start         End      Blocks   Id  System\par
+/dev/sda1            8192     1646591      819200   83  Linux\par
+Command (m for help): w\par
+[root@desktop2 ~]# partprobe /dev/sda\par
+[root@desktop2 ~]# mkfs.ext3 /dev/sda1\par
+[root@desktop2 ~]# mkdir /mnt/initiator\par
+[root@desktop2 ~]# vim /etc/fstab\par
+/dev/sda1       /mnt/initiator  ext3     _netdev    0       0\par
+:wq\par
+\par
+[root@desktop2 ~]# mount -a\par
+[root@desktop2 ~]# df -h\par
+Filesystem                              Size         Used    Avail         Use%         Mounted on\par
+//172.25.2.11/OPENGROUP             10G                 3.3G    6.8G                33%             /mnt/smbspace\par
+172.24.70.25:/nfsshare             10G          3.6G        6.5G                 36%               /public\par
+172.25.70.25:/nfssecure/protected    10G          3.3G    6.8G                 33%            /secure/protected\par
+/dev/sda1                      2024M           33M   1998M               5%             /mnt/initiator\par
+\par
+\par
+\par
+\par
+Posted 4th February 2016 by muthu kumar\par
+  \par
+8  View comments\par
+JAN\par
+1\par
+RHCE 7 QUESTIONS and Answer\par
+Domain Name:\par
+System1:  system1.district10.example.com\par
+System2:  system2.district10.example.com\par
+IP Address:\par
+System1:172.24.10.110/24\par
+System1:172.24.10.120/24\par
+Name Server: 172.24.10.250\par
+Gateway:172.24.10.254\par
+Root password : zaldebro\par
+\par
+1.Configure selinux.  Configure your systems that should be running in Enforcing.\par
+2.Configure repository.  Create a Repository for your virtual machines. The URI is {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/content/rhel7.0/x86_64/dvd }}{\fldrslt{http://station.district0.example.com/content/rhel7.0/x86_64/dvd\ul0\cf0}}}}\f0\fs22\par
+3. SSH configuration.\par
+Clients within my133ilt.org should NOT have access to ssh on your systems\par
+Clients with domain district10.example.com should be able to access the systems\par
+4. Port forwarding\par
+Configure system1 to forward traffic incoming on port 80/tcp from source network 172.24.X.0/255.255.255.0 to port on 5243/tcp\par
+5. User Environment.  \par
+Create a command called qstat on both system1 and system2.  It should able to execute the following command(ps eo pid,tid,class,rtprio,ni,pri,psr,pcpu,stat,wchan:14,comm)\par
+The command should be executable by all users.\par
+\par
+\par
+\par
+6. Ipv6 network.  \par
+Configure eth0 with a static ipv6 addresses as follows.  \par
+Configure a Static IPv6 address in system1 as fddb:fe2a:ab1e::c0a8:64/64.\par
+Configure a Static IPv6 address in system2 as fddb:fe2a:ab1e::c0a8:02/64.\par
+Both machines are able to communicate within the network fddb:fe2a:able/64\par
+The changes should be permanent even after the reboot\par
+7. Link aggregation  Configure your system1 and system2, which watches for link changes and selects an active port for data transfers.  System1 should have the address as 172.24.10.10/255.255.255.0.  System2 should have the address as 172.24.10.20/255.255.255.0\par
+8. SMTP Configuration.  Configure the SMTP mail service on system1 and system2 which relay the mail only from local system through station.network0.example.com, all outgoing mail have their sender domain as example.com.  Verify the mail server is working by sending mail to a local  user clarke.\par
+Check the mail on both system1 and system2 with the below URL\par
+{{\field{\*\fldinst{HYPERLINK http://rhcert.district0.example.com }}{\fldrslt{http://rhcert.district0.example.com\ul0\cf0}}}}\f0\fs22\par
+9. NFS server.\par
+Configure system1 with the following requirements.  \par
+Share the /nfsshare directory within the example.com domain clients only, share must not be writable.  Share the /nfssecure, enable krb5p security to secure access to the NFS share from URI\u8203?\u8203?{{\field{\*\fldinst{HYPERLINK http://station.network0.example.com/pub/keytabs/system1.keytab }}{\fldrslt{http://station.network0.example.com/pub/keytabs/system1.keytab\ul0\cf0}}}}\f0\fs22   \par
+Create a directory named as protected under /nfssecure  The exported directory should have read/write access from all subdomains of the example.com domain.  Ensure the directory /nfssecure/protected should be owned by the user harry with read/write permission.\par
+10. Nfs mount\par
+Mount /nfsshare directory on system2 under /public directory persistently at system boot time.  Mount /nfssecure/protected with krb5p secured share on system2 beneath /secure/protected provided with keytab {{\field{\*\fldinst{HYPERLINK http://station.network0.example.com/pub/keytabs/system2.keytab }}{\fldrslt{http://station.network0.example.com/pub/keytabs/system2.keytab\ul0\cf0}}}}\f0\fs22\par
+The user harry able to write files on /secure directory\par
+11. Smb access\par
+Share the /sambadir directory via SMB on system1  Your SMB server must be a member of the STAFF workgroup  The share name must be data .The data share must be available to district10.example.com domain clients only  The data share must be browseable .Susan must have read access to the share, authenticating with the same password \ldblquote password\rdblquote , if necessary\par
+12.SAMBA Mount\par
+Share /opstack with SMB share name must be cluster.\par
+The user frankenstein has readable,writeable,accessible to the /opstack SMB share.  The user martin has read access to the /opstack SMB share.  Both users should have the SMB passwd "SaniTago".\par
+The share must be browseable\par
+Mount the samba share /opstack permanently beneath /mnt/smbspace on system2 as a multiuser mount.  The samba share should be mounted with the credentials of martin.\par
+13.  Webserver.\par
+Implement a webserver for the site\u8203?\u8203? {{\field{\*\fldinst{HYPERLINK http://system1.district10.example.com }}{\fldrslt{http://system1.district10.example.com\ul0\cf0}}}}\f0\fs22\par
+Download the webpage from\u8203?\u8203?{{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/rhce/rhce.html }}{\fldrslt{http://station.district0.example.com/pub/rhce/rhce.html\ul0\cf0}}}}\f0\fs22   \par
+Rename the downloaded file in to index.html.\par
+copy the file into the document root.\par
+Do not make any modification with the content of the index.html.\par
+Webserver must be available to clients with domain district10.example.com\par
+Clients within my22ilt.org should NOT access the webserver on your systems\par
+14) Secured webserver\par
+configure the website\u8203?\u8203?{{\field{\*\fldinst{HYPERLINK https://system1.example.com }}{\fldrslt{https://system1.example.com\ul0\cf0}}}}\f0\fs22\u8203?with TLS\par
+SSLCertificate file {{\field{\*\fldinst{HYPERLINK http://classroom.example.com/pub/rhce/tls/certs/system1.networkX.crt }}{\fldrslt{http://classroom.example.com/pub/rhce/tls/certs/system1.networkX.crt\ul0\cf0}}}}\f0\fs22\par
+SSLCertificatekeyfile {{\field{\*\fldinst{HYPERLINK http://classroom.example.com/pub/rhce/tls/private/system1.networkX.key }}{\fldrslt{http://classroom.example.com/pub/rhce/tls/private/system1.networkX.key\ul0\cf0}}}}\f0\fs22   \par
+SSL CA certificate file\u8203?\u8203?{{\field{\*\fldinst{HYPERLINK http://classroom.example.com/pub/exampleca.crt }}{\fldrslt{http://classroom.example.com/pub/exampleca.crt\ul0\cf0}}}}\f0\fs22\par
+15) Webpage content modification.\par
+Implement website for \u8203?\u8203?{{\field{\*\fldinst{HYPERLINK http://system1.district10.example.com/owndir }}{\fldrslt{http://system1.district10.example.com/owndir\ul0\cf0}}}}\f0\fs22\par
+Create a directory named as "owndir" under the document root of webserver\par
+Download {{\field{\*\fldinst{HYPERLINK http://station.network0.example.com/pub/rhce/restrict.html }}{\fldrslt{http://station.network0.example.com/pub/rhce/restrict.html\ul0\cf0}}}}\f0\fs22   \par
+Rename the file into index.html  \par
+The content of the owndir should be visible to everyone browsing from your local system but should not be accessible from other location\par
+User harry can edit the contents of the directory\par
+16) Virtual hosting\par
+Setup a virtual host with an alternate document root.  Extend your web to include a virtual for the site\u8203?\u8203?{{\field{\*\fldinst{HYPERLINK http://www.district10.example.com }}{\fldrslt{http://www.district10.example.com\ul0\cf0}}}}\f0\fs22\par
+Set the document root as /usr/local/vhosts\par
+Download\u8203?\u8203?{{\field{\*\fldinst{HYPERLINK http://station.network0.example.com/pub/rhce/vhost.html }}{\fldrslt{http://station.network0.example.com/pub/rhce/vhost.html\ul0\cf0}}}}\f0\fs22   \par
+Rename it as index.html  place this document root of the virtual host  \par
+Note: The other websites configures for your server must still accessible. vhosts.networkX.example.com is already provide by the name server on example.com\par
+17. Dynamic Webpage Configuration.  \par
+Configure website\u8203?\u8203?{{\field{\*\fldinst{HYPERLINK http://dynamic.district10.example.com:8899 }}{\fldrslt{http://dynamic.district10.example.com:8899\ul0\cf0}}}}\f0\fs22  on system1 with the documentroot /var/www/scripts  Site should executes webapp.wsgi.\par
+Page is already provided on\u8203? \u8203?{{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/webapp.wsgi }}{\fldrslt{http://station.district0.example.com/pub/webapp.wsgi\ul0\cf0}}}}\f0\fs22   Content of the script should not be modified.\par
+18) Script1  \par
+Create a script on system1 called /root/random with following details.  When run as /root/random user, should bring the output as "user"  When run as /root/random kernel, should bring the output as "user"  When run with any other argument or without argument, should bring the stderr as "/root/random user|kernel"\par
+19) Script2\par
+Create a script on system1 called /root/createusers  When this script is called with the argument, it should add all the users from the file  Download the file from\u8203?\u8203?{{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/testfile }}{\fldrslt{http://station.district0.example.com/pub/testfile\ul0\cf0}}}}\f0\fs22\par
+All users should have the login shell as /bin/false, password not required.  \par
+When this script is called with anyother argument, it should print the message as "Input File Not Found"  When this script is run without any argument, it should display "Usage: /root/createusers"\par
+\par
+\par
+20.  ISCSI Storage\par
+Create a new 3GB target on your system1.district10.example.com.  The logical block name should be lvm  The server should export an iscsi disk called iqn.2015-12.com.example.district10:system1.  This target should only be allowed to system2\par
+21. ISCSI Initiator\par
+The system1 provides an iscsi port(3260).\par
+connect the disk with system2.district10.example.com and configure filesystem with the following requirements.  \par
+Create 2040 MB partition on ISCSI block device and assign the filesystem as ext3.\par
+Mount the volume under /mnt/initiator at the system boot time.\par
+22.MaridDB Configuration\par
+Configure  a MariaDB on System1 with a database name Contacts.\par
+The Database must be accessible locally only.\par
+The root password must be zaldebro.\par
+Apart from root, only the user Zyuichi must be able to query the Contacts Database.\par
+Zyuichi must be identified by zaldebro.\par
+Restore a database on system1 from the backup file {{\field{\*\fldinst{HYPERLINK http://station.district0.example.com/pub/rhce/backup.mdb }}{\fldrslt{http://station.district0.example.com/pub/rhce/backup.mdb\ul0\cf0}}}}\f0\fs22\par
+23.MariaDB Query\par
+Find the first name of user with password \ldblquote ecosystem\rdblquote\lang9\par
+}
+ 
